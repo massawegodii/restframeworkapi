@@ -107,11 +107,7 @@ def login_user(request):
 @api_view(['GET'])
 @permission_classes([IsAdminRole])
 def get_all_users(request):
-    """
-    Get all users with pagination.
-    Use ?page=1&page_size=10
-    """
-    users = User.objects.all().order_by('-created_at')  # newest first
+    users = User.objects.all().order_by('-created_at')
     paginator = UserPagination()
     paginated_users = paginator.paginate_queryset(users, request)
     serializer = UserListSerializer(paginated_users, many=True)

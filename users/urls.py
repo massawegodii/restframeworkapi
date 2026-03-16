@@ -9,6 +9,6 @@ urlpatterns = [
     
     path('all-users/', get_all_users, name='get-all-users'),
     
-    path('search-users', search_users, name='search-users'),
+    path('search-users/', search_users, name='search-users'),
 
 ]
