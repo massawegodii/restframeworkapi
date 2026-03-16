@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from .models import User
 from .permissions import IsAdminRole
 from django.db.models import Q 
+from .pagination import UserPagination
 
 
 @api_view(['POST'])
@@ -101,18 +102,23 @@ def login_user(request):
     }, status=status.HTTP_400_BAD_REQUEST)
     
     
-#    Get a all users (admin only)
+
+# Get all users with pagination (admin only)
 @api_view(['GET'])
 @permission_classes([IsAdminRole])
 def get_all_users(request):
-    users = User.objects.all()
-    serializer = UserListSerializer(users, many=True)
-    return Response({
+    """
+    Get all users with pagination.
+    Use ?page=1&page_size=10
+    """
+    users = User.objects.all().order_by('-created_at')  # newest first
+    paginator = UserPagination()
+    paginated_users = paginator.paginate_queryset(users, request)
+    serializer = UserListSerializer(paginated_users, many=True)
+    return paginator.get_paginated_response({
         "status": "success",
-        "count": users.count(),
         "users": serializer.data
-    }, status=status.HTTP_200_OK) 
-    
+    })
     
     
 #Search users by firstname, lastname, or email (admin only)
