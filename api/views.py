@@ -5,14 +5,6 @@ from .models import Product
 from .serializers import ProductSerializer
 
 
-# GET all products
-@api_view(['GET'])
-def get_product(request):
-    products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
-    return Response(serializer.data)
-
-
 # POST add product
 @api_view(['POST'])
 def add_product(request):
@@ -23,3 +15,13 @@ def add_product(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# GET all products
+@api_view(['GET'])
+def get_product(request):
+    products = Product.objects.all()
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data)
+
+
