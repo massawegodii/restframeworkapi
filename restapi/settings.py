@@ -132,6 +132,19 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = 'users.User'
 
+# Caching configuration using Redis
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+CACHE_TTL = 60 * 60  # 1 hour
+
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
