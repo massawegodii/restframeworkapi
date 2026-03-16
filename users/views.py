@@ -1,16 +1,29 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import LoginSerializer, RegisterSerializer
+
+from .serializers import LoginSerializer, RegisterSerializer, UserListSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import User
+from .permissions import IsAdminRole
 
 
 @api_view(['POST'])
 def register_user(request):
     serializer = RegisterSerializer(data=request.data)
+    
     if serializer.is_valid():
+        email = serializer.validated_data.get('email')
+        
+        # Check if user with email already exists
+        if User.objects.filter(email=email).exists():
+            return Response({
+                "status": "error",
+                "message": "A user with this email already exists."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Save the user
         user = serializer.save()
         return Response({
             "status": "success",
@@ -24,7 +37,14 @@ def register_user(request):
             }
         }, status=status.HTTP_201_CREATED)
     
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    errors = []
+    for field, msgs in serializer.errors.items():
+        errors.extend(msgs)
+    
+    return Response({
+        "status": "error",
+        "message": " ".join(errors)
+    }, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -78,3 +98,16 @@ def login_user(request):
         "status": "error",
         "message": " ".join(errors)
     }, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    
+@api_view(['GET'])
+@permission_classes([IsAdminRole])
+def get_all_users(request):
+    users = User.objects.all()
+    serializer = UserListSerializer(users, many=True)
+    return Response({
+        "status": "success",
+        "count": users.count(),
+        "users": serializer.data
+    }, status=status.HTTP_200_OK) 
