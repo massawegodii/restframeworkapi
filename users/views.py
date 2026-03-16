@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import User
 from .permissions import IsAdminRole
+from django.db.models import Q 
 
 
 @api_view(['POST'])
@@ -100,7 +101,7 @@ def login_user(request):
     }, status=status.HTTP_400_BAD_REQUEST)
     
     
-    
+#    Get a all users (admin only)
 @api_view(['GET'])
 @permission_classes([IsAdminRole])
 def get_all_users(request):
@@ -111,3 +112,33 @@ def get_all_users(request):
         "count": users.count(),
         "users": serializer.data
     }, status=status.HTTP_200_OK) 
+    
+    
+    
+#Search users by firstname, lastname, or email (admin only)
+@api_view(['GET'])
+@permission_classes([IsAdminRole])  
+def search_users(request):
+    """
+    Search users by firstname, lastname, or email.
+    Pass search term as query parameter: ?q=search_term
+    """
+    query = request.GET.get('q', '')
+    if not query:
+        return Response({
+            "status": "error",
+            "message": "Please provide a search query using ?q=term"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    users = User.objects.filter(
+        Q(firstname__icontains=query) |
+        Q(lastname__icontains=query) |
+        Q(email__icontains=query)
+    )
+
+    serializer = UserListSerializer(users, many=True)
+    return Response({
+        "status": "success",
+        "count": users.count(),
+        "users": serializer.data
+    }, status=status.HTTP_200_OK)    
