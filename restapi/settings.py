@@ -133,10 +133,20 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'users.User'
 
 # Caching configuration using Redis
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://127.0.0.1:6379/1",
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         }
+#     }
+# }
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": "redis://default:zeVOYfn6K10CgSTGxYiGGafaBt7cZcVY@redis-18255.c114.us-east-1-4.ec2.cloud.redislabs.com:18255/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
